@@ -46,7 +46,7 @@ CONFIG = {
     "min_volume_usdc": 500,
     "max_spread": 0.10,
     "min_confidence": float(os.getenv("MIN_CONFIDENCE", "0.70")),
-    "claude_model": "claude-opus-4-5",
+    "claude_model": "claude-haiku-4-5-20251001",
     "scan_interval_seconds": int(os.getenv("SCAN_INTERVAL", "60")),
     "max_markets_per_cycle": int(os.getenv("MAX_MARKETS_PER_CYCLE", "5")),
 }
