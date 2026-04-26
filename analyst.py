@@ -64,7 +64,7 @@ ANTWORTE NUR MIT DIESEM JSON (kein Text davor oder danach):
 
 WICHTIG: confidence >= 0.70 bedeutet Trade wird ausgeführt. Sei konservativ."""
 
-        time.sleep(3)
+        time.sleep(15)
         time.sleep(15)
         try:
             response = self.client.messages.create(
