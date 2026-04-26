@@ -1,0 +1,89 @@
+2026-04-26 23:49:19,590 [INFO] HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-04-26 23:49:19,905 [INFO] HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-04-26 23:49:19,906 [INFO] CLOB Client initialisiert
+2026-04-26 23:49:19,906 [INFO] Bot gestartet
+2026-04-26 23:49:20,430 [INFO] Scanner: 200 Märkte geprüft, 0 Kandidaten, 0 zur Analyse
+2026-04-26 23:49:20,432 [INFO] Keine Kandidaten gefunden
+2026-04-26 23:56:16,676 [INFO] HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-04-26 23:56:16,773 [INFO] HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-04-26 23:56:16,778 [INFO] CLOB Client initialisiert
+2026-04-26 23:56:16,778 [INFO] Bot gestartet
+2026-04-26 23:56:17,393 [INFO] Scanner: 200 Märkte geprüft, 0 Kandidaten, 0 zur Analyse
+2026-04-26 23:56:17,395 [INFO] Keine Kandidaten gefunden
+2026-04-27 00:00:53,624 [INFO] HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-04-27 00:00:53,772 [INFO] HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-04-27 00:00:53,774 [INFO] CLOB Client initialisiert
+2026-04-27 00:00:53,774 [INFO] Bot gestartet
+2026-04-27 00:00:55,342 [INFO] Scanner: 200 Märkte geprüft, 0 Kandidaten, 0 zur Analyse
+2026-04-27 00:00:55,343 [INFO] Keine Kandidaten gefunden
+2026-04-27 00:03:54,101 [INFO] HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-04-27 00:03:54,191 [INFO] HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-04-27 00:03:54,193 [INFO] CLOB Client initialisiert
+2026-04-27 00:03:54,194 [INFO] Bot gestartet
+2026-04-27 00:03:54,802 [INFO] Scanner: 200 Märkte geprüft, 43 Kandidaten, 5 zur Analyse
+2026-04-27 00:04:09,324 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-27 00:04:09,622 [ERROR] Claude JSON Parse Fehler: Expecting value: line 1 column 1 (char 0) | Raw: Basierend auf meiner Recherche habe ich folgende Erkenntnisse:
+
+**Spielinformationen:**
+- Das nächste Lazio-Spiel ist SS Lazio vs Udinese im Stadio Olimpico am 27. April 2026.
+- Das Spiel findet am Mo
+2026-04-27 00:04:09,863 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:04:09,866 [INFO] Retrying request to /v1/messages in 0.414549 seconds
+2026-04-27 00:04:10,751 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:04:10,752 [INFO] Retrying request to /v1/messages in 0.956538 seconds
+2026-04-27 00:04:12,034 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:04:12,037 [ERROR] Claude API Fehler: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': "This request would exceed your organization's rate limit of 10,000 input tokens per minute (org: 4c861d7a-22b5-4ac7-af04-eeea7c9425c3, model: claude-opus-4-5-20251101). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Please reduce the prompt length or the maximum tokens requested, or try again later. You may also contact sales at https://claude.com/contact-sales to discuss your options for a rate limit increase."}, 'request_id': 'req_011CaT94BnHFy5k1EVsjqfHg'}
+2026-04-27 00:04:12,398 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:04:12,400 [INFO] Retrying request to /v1/messages in 0.419950 seconds
+2026-04-27 00:04:13,084 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:04:13,085 [INFO] Retrying request to /v1/messages in 0.925730 seconds
+2026-04-27 00:04:14,994 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:04:14,997 [ERROR] Claude API Fehler: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': "This request would exceed your organization's rate limit of 10,000 input tokens per minute (org: 4c861d7a-22b5-4ac7-af04-eeea7c9425c3, model: claude-opus-4-5-20251101). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Please reduce the prompt length or the maximum tokens requested, or try again later. You may also contact sales at https://claude.com/contact-sales to discuss your options for a rate limit increase."}, 'request_id': 'req_011CaT94MhLEn4gcEodyjCPG'}
+2026-04-27 00:04:15,465 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:04:15,468 [INFO] Retrying request to /v1/messages in 0.482612 seconds
+2026-04-27 00:04:16,268 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:04:16,270 [INFO] Retrying request to /v1/messages in 0.972282 seconds
+2026-04-27 00:04:17,473 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:04:17,475 [ERROR] Claude API Fehler: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': "This request would exceed your organization's rate limit of 10,000 input tokens per minute (org: 4c861d7a-22b5-4ac7-af04-eeea7c9425c3, model: claude-opus-4-5-20251101). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Please reduce the prompt length or the maximum tokens requested, or try again later. You may also contact sales at https://claude.com/contact-sales to discuss your options for a rate limit increase."}, 'request_id': 'req_011CaT94bN7M7D6ebrbi8RKe'}
+2026-04-27 00:04:17,837 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:04:17,839 [INFO] Retrying request to /v1/messages in 0.392959 seconds
+2026-04-27 00:04:18,586 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:04:18,587 [INFO] Retrying request to /v1/messages in 0.904320 seconds
+2026-04-27 00:04:19,735 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:04:19,738 [ERROR] Claude API Fehler: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': "This request would exceed your organization's rate limit of 10,000 input tokens per minute (org: 4c861d7a-22b5-4ac7-af04-eeea7c9425c3, model: claude-opus-4-5-20251101). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Please reduce the prompt length or the maximum tokens requested, or try again later. You may also contact sales at https://claude.com/contact-sales to discuss your options for a rate limit increase."}, 'request_id': 'req_011CaT94kv5fcJYXg7P74Nn6'}
+2026-04-27 00:07:07,610 [INFO] HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-04-27 00:07:07,710 [INFO] HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-04-27 00:07:07,711 [INFO] CLOB Client initialisiert
+2026-04-27 00:07:07,712 [INFO] Bot gestartet
+2026-04-27 00:07:08,052 [INFO] Scanner: 200 Märkte geprüft, 37 Kandidaten, 5 zur Analyse
+2026-04-27 00:07:32,637 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-27 00:07:32,811 [ERROR] Claude JSON Parse Fehler: Unterminated string starting at: line 5 column 16 (char 96) | Raw: 
+{
+  "action": "SKIP",
+  "confidence": 0.55,
+  "true_probability_estimate": 0.52,
+  "reasoning": "Lazio spielt zu Hause gegen Udinese, hat histor
+2026-04-27 00:07:36,683 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:07:36,685 [INFO] Retrying request to /v1/messages in 0.403335 seconds
+2026-04-27 00:07:37,470 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:07:37,472 [INFO] Retrying request to /v1/messages in 0.796808 seconds
+2026-04-27 00:07:38,535 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:07:38,537 [ERROR] Claude API Fehler: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': "This request would exceed your organization's rate limit of 10,000 input tokens per minute (org: 4c861d7a-22b5-4ac7-af04-eeea7c9425c3, model: claude-opus-4-5-20251101). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Please reduce the prompt length or the maximum tokens requested, or try again later. You may also contact sales at https://claude.com/contact-sales to discuss your options for a rate limit increase."}, 'request_id': 'req_011CaT9KQoXZLYSNH27VDdHt'}
+2026-04-27 00:07:41,802 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:07:41,805 [INFO] Retrying request to /v1/messages in 0.405328 seconds
+2026-04-27 00:07:42,700 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:07:42,702 [INFO] Retrying request to /v1/messages in 0.793012 seconds
+2026-04-27 00:07:43,729 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:07:43,731 [ERROR] Claude API Fehler: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': "This request would exceed your organization's rate limit of 10,000 input tokens per minute (org: 4c861d7a-22b5-4ac7-af04-eeea7c9425c3, model: claude-opus-4-5-20251101). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Please reduce the prompt length or the maximum tokens requested, or try again later. You may also contact sales at https://claude.com/contact-sales to discuss your options for a rate limit increase."}, 'request_id': 'req_011CaT9Ko7xGMegKsvDvkhSF'}
+2026-04-27 00:07:47,491 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:07:47,494 [INFO] Retrying request to /v1/messages in 0.409827 seconds
+2026-04-27 00:07:48,252 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:07:48,255 [INFO] Retrying request to /v1/messages in 0.774055 seconds
+2026-04-27 00:07:49,379 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:07:49,381 [ERROR] Claude API Fehler: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': "This request would exceed your organization's rate limit of 10,000 input tokens per minute (org: 4c861d7a-22b5-4ac7-af04-eeea7c9425c3, model: claude-opus-4-5-20251101). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Please reduce the prompt length or the maximum tokens requested, or try again later. You may also contact sales at https://claude.com/contact-sales to discuss your options for a rate limit increase."}, 'request_id': 'req_011CaT9LCrTzqbRRCkJTidt9'}
+2026-04-27 00:07:52,827 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:07:52,829 [INFO] Retrying request to /v1/messages in 0.430581 seconds
+2026-04-27 00:07:53,810 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:07:53,812 [INFO] Retrying request to /v1/messages in 0.828083 seconds
+2026-04-27 00:07:54,942 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 429 Too Many Requests"
+2026-04-27 00:07:54,944 [ERROR] Claude API Fehler: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': "This request would exceed your organization's rate limit of 10,000 input tokens per minute (org: 4c861d7a-22b5-4ac7-af04-eeea7c9425c3, model: claude-opus-4-5-20251101). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Please reduce the prompt length or the maximum tokens requested, or try again later. You may also contact sales at https://claude.com/contact-sales to discuss your options for a rate limit increase."}, 'request_id': 'req_011CaT9Lcu5YYxFgRDEoV42t'}
