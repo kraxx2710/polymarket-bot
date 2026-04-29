@@ -83,13 +83,13 @@ class MarketScanner:
                     continue
                 days = (end - now).total_seconds() / 86400
 
-                if category == "crypto" and not (1 <= days <= 7):
+                if category == "crypto" and not (0.1 <= days <= 14):
                     continue
-                if category in ("economy", "politics") and not (3 <= days <= 30):
+                if category in ("economy", "politics") and not (1 <= days <= 60):
                     continue
 
                 liquidity = float(m.get("liquidity") or 0)
-                if liquidity < self.cfg["min_volume_usdc"]:
+                if liquidity < 500:
                     continue
 
                 prices = m.get("outcomePrices", [])
