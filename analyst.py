@@ -62,14 +62,30 @@ Min Konfidenz: {min_confidence:.0%} | Min Edge: 0.10"""
                 tools=[{"type": "web_search_20250305", "name": "web_search"}],
                 messages=[{"role": "user", "content": prompt}],
             )
-            text_blocks = []
+            # Zweiter Versuch ohne Web Search wenn erste Antwort leer
+            text_content = ""
             for b in response.content:
                 if hasattr(b, "text") and b.text and b.text.strip():
-                    text_blocks.append(b.text.strip())
-            text_content = " ".join(text_blocks).strip()
-            if not text_content or text_content == "{}":
-                log.warning("Claude: Leere Antwort - Web Search only, kein Text")
-                return self._skip(market, "Leere Textantwort")
+                    text_content += b.text.strip() + " "
+            text_content = text_content.strip()
+
+            if not text_content or "{" not in text_content:
+                log.warning("Erster Versuch leer, zweiter ohne Web Search")
+                response2 = self.client.messages.create(
+                    model=self.cfg["claude_model"],
+                    max_tokens=400,
+                    messages=[{"role": "user", "content": prompt + "
+
+ANTWORTE NUR MIT JSON, kein Web Search noetig."}],
+                )
+                text_content = ""
+                for b in response2.content:
+                    if hasattr(b, "text") and b.text:
+                        text_content += b.text.strip() + " "
+                text_content = text_content.strip()
+
+            if not text_content or "{" not in text_content:
+                return self._skip(market, "Keine Textantwort nach 2 Versuchen")
             if "```" in text_content:
                 for part in text_content.split("```"):
                     if "{" in part:
