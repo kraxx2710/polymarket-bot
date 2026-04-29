@@ -22,7 +22,7 @@ class MarketScanner:
 
         now = datetime.now(timezone.utc)
         short_cutoff = now + timedelta(hours=48)
-        long_min = now + timedelta(days=7)
+        long_min = now + timedelta(days=3)
         long_max = now + timedelta(days=30)
 
         short_term = []
