@@ -38,14 +38,16 @@ log = logging.getLogger(__name__)
 # ============================================================
 CONFIG = {
     "dry_run": os.getenv("DRY_RUN", "true").lower() != "false",
-    "trade_size_usdc": float(os.getenv("TRADE_SIZE_USDC", "5.0")),
+    "trade_size_usdc": float(os.getenv("TRADE_SIZE_USDC", "3.0")),
+    "trade_size_short": float(os.getenv("TRADE_SIZE_SHORT", "3.0")),
+    "trade_size_long": float(os.getenv("TRADE_SIZE_LONG", "15.0")),
     "max_open_positions": int(os.getenv("MAX_POSITIONS", "5")),
     "max_daily_loss_usdc": float(os.getenv("MAX_DAILY_LOSS", "25.0")),
     "min_yes_price": 0.03,
     "max_yes_price": 0.50,
     "min_volume_usdc": 500,
     "max_spread": 0.10,
-    "min_confidence": float(os.getenv("MIN_CONFIDENCE", "0.70")),
+    "min_confidence": float(os.getenv("MIN_CONFIDENCE", "0.85")),
     "claude_model": "claude-haiku-4-5-20251001",
     "scan_interval_seconds": int(os.getenv("SCAN_INTERVAL", "60")),
     "max_markets_per_cycle": int(os.getenv("MAX_MARKETS_PER_CYCLE", "5")),

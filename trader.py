@@ -58,7 +58,7 @@ class PolymarketTrader:
         Im DRY RUN Modus wird kein echter Trade platziert.
         """
         action = decision["action"]
-        size = self.cfg["trade_size_usdc"]
+        size = decision.get("trade_size", self.cfg["trade_size_usdc"])
 
         # Token ID basierend auf Action auswählen
         if action == "BUY_YES":
