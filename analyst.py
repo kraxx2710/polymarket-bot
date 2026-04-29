@@ -2,15 +2,15 @@ import anthropic
 import json
 import logging
 import time
-from data_fetcher import DataFetcher
+from data_fetcher import build_context
 
 log = logging.getLogger(__name__)
+
 
 class ClaudeAnalyst:
     def __init__(self, config: dict):
         self.cfg = config
         self.client = anthropic.Anthropic()
-        self.fetcher = DataFetcher()
 
     def analyse(self, market: dict) -> dict:
         question = market["question"]
@@ -18,116 +18,115 @@ class ClaudeAnalyst:
         no_price = market["no_price"]
         category = market.get("category", "other")
         days_left = market.get("days_left", 0)
-        min_confidence = market.get("min_confidence", self.cfg["min_confidence"])
+        min_conf = market.get("min_confidence", self.cfg["min_confidence"])
 
-        market_context = self.fetcher.get_context_for_market(market)
+        context = build_context(market)
 
-        if category == "crypto":
-            focus = "FOKUS: Fear&Greed, BTC Trend, Whale Bias, DXY. Edge wenn Preis klar ueber/unter technischen Levels."
-        elif category == "economy":
-            focus = "FOKUS: Fed Rate, Inflation, FOMC Statements, historische Basisrate."
-        elif category == "politics":
-            focus = "FOKUS: Aktuelle Nachrichtenlage, Gold als Geopolitik-Barometer, offizielle Statements."
-        else:
-            focus = "FOKUS: Aktuelle Fakten, Basisrate, Marktpreis vs eigene Einschaetzung."
+        focus_map = {
+            "crypto": "Fokus: Aktueller Preis vs Ziel, Fear&Greed, DXY Einfluss, Momentum.",
+            "economy": "Fokus: Fed Rate, Inflation, FOMC Erwartungen, historische Basisrate.",
+            "politics": "Fokus: Aktuelle Nachrichtenlage, Gold als Barometer, offizielle Statements.",
+        }
+        focus = focus_map.get(category, "Fokus: Aktuelle Fakten und Basisrate.")
 
         prompt = f"""Du bist ein professioneller Prediction Market Analyst.
 
-{market_context}
+{context}
 
-FRAGE: {question}
+MARKTFRAGE: {question}
 KATEGORIE: {category.upper()}
-YES: {yes_price:.2f} ({yes_price*100:.0f}%) | NO: {no_price:.2f} | TAGE: {days_left:.1f}
+YES-PREIS: {yes_price:.2f} ({yes_price*100:.0f}% Marktwahrscheinlichkeit)
+NO-PREIS: {no_price:.2f}
+TAGE BIS ABLAUF: {days_left:.1f}
 
 {focus}
 
-1. Analysiere Echtzeit-Daten oben
-2. Web Search fuer neueste News
-3. Schaetze wahre Wahrscheinlichkeit
-4. Edge muss mindestens 10 Cent sein
+Aufgabe:
+1. Analysiere die Echtzeit-Daten
+2. Suche mit Web Search nach aktuellen News
+3. Schaetze die wahre Wahrscheinlichkeit
+4. Kalkuliere den Edge (deine Einschaetzung minus Marktpreis)
 
-ANTWORTE NUR MIT DIESEM JSON:
-{{"action":"BUY_YES oder BUY_NO oder SKIP","confidence":0.0,"true_probability_estimate":0.0,"edge":0.0,"reasoning":"2 Saetze DE","key_finding":"Wichtigster Fakt","data_signal":"Hilfreichstes Signal"}}
+Regeln:
+- BUY_YES: deine Einschaetzung > Marktpreis + 0.10
+- BUY_NO: deine Einschaetzung < Marktpreis - 0.10
+- SKIP: Edge kleiner als 0.10 oder zu unsicher
 
-Min Konfidenz: {min_confidence:.0%} | Min Edge: 0.10"""
+Antworte AUSSCHLIESSLICH mit diesem JSON-Format:
+{{"action":"SKIP","confidence":0.75,"true_probability_estimate":0.45,"edge":-0.05,"reasoning":"Kurze Begruendung auf Deutsch.","key_finding":"Wichtigster Fakt."}}"""
 
-        try:
-            time.sleep(15)
-            response = self.client.messages.create(
-                model=self.cfg["claude_model"],
-                max_tokens=500,
-                tools=[{"type": "web_search_20250305", "name": "web_search"}],
-                messages=[{"role": "user", "content": prompt}],
-            )
+        time.sleep(12)
 
-            text_content = ""
-            for b in response.content:
-                if hasattr(b, "text") and b.text and b.text.strip():
-                    text_content += b.text.strip() + " "
-            text_content = text_content.strip()
+        for attempt in range(2):
+            try:
+                if attempt == 0:
+                    response = self.client.messages.create(
+                        model=self.cfg["claude_model"],
+                        max_tokens=400,
+                        tools=[{"type": "web_search_20250305", "name": "web_search"}],
+                        messages=[{"role": "user", "content": prompt}],
+                    )
+                else:
+                    response = self.client.messages.create(
+                        model=self.cfg["claude_model"],
+                        max_tokens=400,
+                        messages=[{"role": "user", "content": prompt}],
+                    )
 
-            if not text_content or "{" not in text_content:
-                log.warning("Erster Versuch leer, zweiter Versuch ohne Web Search")
-                response2 = self.client.messages.create(
-                    model=self.cfg["claude_model"],
-                    max_tokens=400,
-                    messages=[{"role": "user", "content": prompt + "\n\nANTWORTE NUR JSON, kein Web Search."}],
-                )
-                text_content = ""
-                for b in response2.content:
-                    if hasattr(b, "text") and b.text:
-                        text_content += b.text.strip() + " "
-                text_content = text_content.strip()
+                text = ""
+                for block in response.content:
+                    if hasattr(block, "text") and block.text:
+                        text += block.text
 
-            if not text_content or "{" not in text_content:
-                return self._skip(market, "Keine Textantwort")
+                start = text.find("{")
+                end = text.rfind("}") + 1
+                if start < 0 or end <= start:
+                    log.warning(f"Kein JSON in Antwort (Versuch {attempt+1})")
+                    continue
 
-            s = text_content.find("{")
-            e = text_content.rfind("}") + 1
-            if s >= 0 and e > s:
-                text_content = text_content[s:e]
+                result = json.loads(text[start:end])
+                action = result.get("action", "SKIP")
+                confidence = max(0.0, min(1.0, float(result.get("confidence", 0.0))))
+                edge = float(result.get("edge", 0.0))
 
-            result = json.loads(text_content)
-            action = result.get("action", "SKIP")
-            confidence = max(0.0, min(1.0, float(result.get("confidence", 0.0))))
-            edge = float(result.get("edge", 0.0))
+                if action not in ("BUY_YES", "BUY_NO", "SKIP"):
+                    action = "SKIP"
+                if action != "SKIP" and abs(edge) < 0.10:
+                    action = "SKIP"
 
-            if action not in ("BUY_YES", "BUY_NO", "SKIP"):
-                action = "SKIP"
-            if action != "SKIP" and abs(edge) < 0.10:
-                action = "SKIP"
+                log.info(f"Claude [{category.upper()}]: {action} Konfidenz={confidence:.0%} "
+                         f"Edge={edge:+.2f} | {question[:55]}...")
 
-            decision = {
-                "action": action,
-                "confidence": confidence,
-                "min_confidence": min_confidence,
-                "true_probability_estimate": float(result.get("true_probability_estimate", 0.5)),
-                "edge": edge,
-                "reasoning": result.get("reasoning", ""),
-                "key_finding": result.get("key_finding", ""),
-                "data_signal": result.get("data_signal", ""),
-                "question": question,
-                "category": category,
-                "yes_price": yes_price,
-                "no_price": no_price,
-                "trade_size": market.get("trade_size", self.cfg["trade_size_usdc"]),
-                "yes_token_id": market["yes_token_id"],
-                "no_token_id": market["no_token_id"],
-                "market_url": market.get("url", ""),
-            }
-            log.info(f"Claude [{category.upper()}]: {action} Konfidenz={confidence:.0%} Edge={edge:.2f} | {question[:50]}...")
-            return decision
+                return {
+                    "action": action,
+                    "confidence": confidence,
+                    "min_confidence": min_conf,
+                    "edge": edge,
+                    "true_probability_estimate": float(result.get("true_probability_estimate", 0.5)),
+                    "reasoning": result.get("reasoning", ""),
+                    "key_finding": result.get("key_finding", ""),
+                    "question": question,
+                    "category": category,
+                    "yes_price": yes_price,
+                    "no_price": no_price,
+                    "trade_size": market.get("trade_size", self.cfg["trade_size_usdc"]),
+                    "yes_token_id": market["yes_token_id"],
+                    "no_token_id": market["no_token_id"],
+                    "market_url": market.get("url", ""),
+                }
 
-        except Exception as e:
-            log.error(f"Claude Fehler: {e}")
-            return self._skip(market, str(e))
+            except json.JSONDecodeError as e:
+                log.error(f"JSON Fehler (Versuch {attempt+1}): {e}")
+            except Exception as e:
+                log.error(f"API Fehler (Versuch {attempt+1}): {e}")
 
-    def _skip(self, market, reason):
+        return self._skip(market, "Beide Versuche fehlgeschlagen")
+
+    def _skip(self, market, reason=""):
         return {
             "action": "SKIP", "confidence": 0.0,
             "min_confidence": market.get("min_confidence", 0.78),
-            "edge": 0.0, "reasoning": f"Fehler: {reason}",
-            "key_finding": "", "data_signal": "",
+            "edge": 0.0, "reasoning": reason, "key_finding": "",
             "question": market.get("question", ""),
             "category": market.get("category", "other"),
             "yes_price": market.get("yes_price", 0),

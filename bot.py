@@ -1,14 +1,3 @@
-"""
-bot.py - Hauptdatei des Polymarket AI Trading Bots
-Strategie: Contrarian - Claude analysiert Märkte mit Web Search und tradet bei hoher Konfidenz
-
-Setup:
-  pip install -r requirements.txt
-  cp .env.example .env  # dann Keys eintragen
-  python bot.py         # Dry Run (kein echtes Trading)
-  DRY_RUN=false python bot.py  # Live Trading
-"""
-
 import os
 import time
 import logging
@@ -25,102 +14,97 @@ from risk import RiskManager
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.FileHandler("bot.log"),
-        logging.StreamHandler(),
-    ],
+    handlers=[logging.FileHandler("bot.log"), logging.StreamHandler()]
 )
 log = logging.getLogger(__name__)
 
-
-# ============================================================
-# KONFIGURATION
-# ============================================================
 CONFIG = {
     "dry_run": os.getenv("DRY_RUN", "true").lower() != "false",
-    "trade_size_usdc": float(os.getenv("TRADE_SIZE_USDC", "3.0")),
-    "trade_size_short": float(os.getenv("TRADE_SIZE_SHORT", "3.0")),
-    "trade_size_long": float(os.getenv("TRADE_SIZE_LONG", "15.0")),
-    "max_open_positions": int(os.getenv("MAX_POSITIONS", "5")),
-    "max_daily_loss_usdc": float(os.getenv("MAX_DAILY_LOSS", "25.0")),
-    "min_yes_price": 0.03,
-    "max_yes_price": 0.50,
-    "min_volume_usdc": 500,
-    "max_spread": 0.10,
-    "min_confidence": float(os.getenv("MIN_CONFIDENCE", "0.85")),
+    "trade_size_usdc": float(os.getenv("TRADE_SIZE_USDC", "5.0")),
+    "trade_size_crypto": float(os.getenv("TRADE_SIZE_CRYPTO", "5.0")),
+    "trade_size_economy": float(os.getenv("TRADE_SIZE_ECONOMY", "10.0")),
+    "max_open_positions": int(os.getenv("MAX_POSITIONS", "6")),
+    "max_daily_loss_usdc": float(os.getenv("MAX_DAILY_LOSS", "30.0")),
+    "min_yes_price": 0.05,
+    "max_yes_price": 0.70,
+    "min_volume_usdc": 2000,
+    "max_spread": 0.08,
+    "min_confidence": float(os.getenv("MIN_CONFIDENCE", "0.78")),
+    "min_confidence_crypto": float(os.getenv("MIN_CONFIDENCE_CRYPTO", "0.80")),
+    "min_confidence_economy": float(os.getenv("MIN_CONFIDENCE_ECONOMY", "0.78")),
     "claude_model": "claude-haiku-4-5-20251001",
-    "scan_interval_seconds": int(os.getenv("SCAN_INTERVAL", "60")),
-    "max_markets_per_cycle": int(os.getenv("MAX_MARKETS_PER_CYCLE", "5")),
+    "scan_interval_seconds": int(os.getenv("SCAN_INTERVAL", "900")),
 }
-# ============================================================
 
 
 def run_cycle(scanner, analyst, trader, risk):
     now = datetime.now().strftime("%H:%M:%S")
-    summary = risk.get_summary()
+    s = risk.summary()
+    print(f"\n{'='*55}")
+    print(f"  ZYKLUS {now} | Positionen: {s['open_positions']}/{CONFIG['max_open_positions']} | Verlust: ${s['daily_loss']:.2f}")
+    print(f"{'='*55}")
 
-    print(f"\n{'='*60}")
-    print(f"  ZYKLUS {now}  |  Positionen: {summary['open_positions']}/{CONFIG['max_open_positions']}  |  Tagesverlust: ${summary['daily_loss_usdc']:.2f}")
-    print(f"{'='*60}")
-
-    candidates = scanner.get_tradable_markets()
-    if not candidates:
-        log.info("Keine Kandidaten gefunden")
+    markets = scanner.get_tradable_markets()
+    if not markets:
+        log.info("Keine Kandidaten")
         return
 
-    print(f"\n  {len(candidates)} Contrarian-Kandidaten gefunden\n")
-    trades_executed = 0
+    print(f"\n  {len(markets)} Maerkte zur Analyse\n")
+    trades = 0
 
-    for market in candidates:
-        print(f"  >> {market['question'][:70]}...")
-        print(f"     YES: {market['yes_price']:.2f} | Spread: {market['spread']:.3f} | Vol24h: ${market['volume_24h']:,.0f}")
+    for m in markets:
+        print(f"  [{m['category'].upper()}] {m['question'][:65]}...")
+        print(f"  YES: {m['yes_price']:.2f} | Tage: {m['days_left']} | Vol: ${m['volume_24h']:,.0f}")
 
-        can_trade, reason = risk.can_trade({"question": market["question"]})
-        if not can_trade:
-            print(f"     SKIP (Risk): {reason}\n")
+        ok, reason = risk.can_trade(m["question"])
+        if not ok:
+            print(f"  -> SKIP (Risk: {reason})\n")
             continue
 
-        decision = analyst.analyse(market)
-        action = decision["action"]
-        confidence = decision["confidence"]
+        d = analyst.analyse(m)
+        action = d["action"]
+        conf = d["confidence"]
+        edge = d["edge"]
+        min_conf = d["min_confidence"]
 
-        print(f"     Claude: {action} | Konfidenz: {confidence:.0%}")
-        if decision.get("reasoning"):
-            print(f"     Reasoning: {decision['reasoning']}")
-        if decision.get("key_finding"):
-            print(f"     Finding: {decision['key_finding']}")
+        print(f"  Claude: {action} | Konfidenz: {conf:.0%} | Edge: {edge:+.2f}")
+        if d.get("reasoning"):
+            print(f"  Grund: {d['reasoning']}")
+        if d.get("key_finding"):
+            print(f"  Finding: {d['key_finding']}")
 
-        if action == "SKIP" or confidence < CONFIG["min_confidence"]:
-            print(f"     -> SKIP\n")
+        if action == "SKIP" or conf < min_conf:
+            print(f"  -> SKIP (Konfidenz {conf:.0%} < {min_conf:.0%} oder SKIP)\n")
             continue
 
-        order_result = trader.execute(decision)
-        status = order_result.get("status", "unknown")
+        result = trader.execute(d)
+        status = result.get("status", "")
 
         if status in ("executed", "dry_run"):
-            risk.record_trade(decision, order_result)
-            trades_executed += 1
+            risk.record_trade(d, result)
+            trades += 1
             prefix = "[DRY RUN] " if status == "dry_run" else ""
-            print(f"     -> {prefix}TRADE: {action} ${CONFIG['trade_size_usdc']}\n")
+            print(f"  -> {prefix}TRADE: {action} ${d['trade_size']}\n")
         else:
-            print(f"     -> FEHLER: {order_result.get('error', 'unbekannt')}\n")
+            print(f"  -> FEHLER: {result.get('error', 'unbekannt')}\n")
 
-    print(f"\n  Zyklus fertig. {trades_executed} Trade(s). Nächster Scan in {CONFIG['scan_interval_seconds']//60} Min.\n")
+    print(f"\n  {trades} Trade(s). Naechster Scan in {CONFIG['scan_interval_seconds']//60} Min.\n")
 
 
 def main():
     print("""
-╔══════════════════════════════════════════════════════════╗
-║   POLYMARKET AI BOT  |  Contrarian + Claude Analysis     ║
-╚══════════════════════════════════════════════════════════╝
+╔══════════════════════════════════════════════════════╗
+║  POLYMARKET AI BOT  |  Krypto + Wirtschaft + Politik  ║
+║  Powered by Claude Haiku + Echtzeit Marktdaten        ║
+╚══════════════════════════════════════════════════════╝
 """)
     mode = "DRY RUN" if CONFIG["dry_run"] else "LIVE TRADING"
     print(f"  Modus:          {mode}")
-    print(f"  Trade Size:     ${CONFIG['trade_size_usdc']}")
+    print(f"  Krypto Trade:   ${CONFIG['trade_size_crypto']}")
+    print(f"  Eco/Pol Trade:  ${CONFIG['trade_size_economy']}")
     print(f"  Min Konfidenz:  {CONFIG['min_confidence']:.0%}")
     print(f"  Scan Intervall: {CONFIG['scan_interval_seconds']}s")
-    print(f"  Max Positionen: {CONFIG['max_open_positions']}")
-    print(f"  Max Tagesverlust: ${CONFIG['max_daily_loss_usdc']}\n")
+    print(f"  Max Verlust:    ${CONFIG['max_daily_loss_usdc']}/Tag\n")
 
     scanner = MarketScanner(CONFIG)
     analyst = ClaudeAnalyst(CONFIG)
@@ -133,14 +117,12 @@ def main():
         try:
             run_cycle(scanner, analyst, trader, risk)
         except KeyboardInterrupt:
-            log.info("Bot gestoppt (Ctrl+C)")
+            log.info("Bot gestoppt")
             break
         except Exception as e:
-            log.error(f"Fehler im Zyklus: {e}", exc_info=True)
-            log.info("Warte 60s...")
+            log.error(f"Zyklus Fehler: {e}", exc_info=True)
             time.sleep(60)
             continue
-
         time.sleep(CONFIG["scan_interval_seconds"])
 
 
