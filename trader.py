@@ -1,8 +1,7 @@
 import os
 import logging
 from py_clob_client.client import ClobClient
-from py_clob_client.clob_types import MarketOrderArgs, OrderType
-from py_clob_client.order_builder.constants import BUY
+from py_clob_client.clob_types import OrderArgs, OrderType
 
 log = logging.getLogger(__name__)
 CLOB_HOST = "https://clob.polymarket.com"
@@ -38,15 +37,18 @@ class PolymarketTrader:
         else:
             return {"status": "skipped"}
 
-        dry_run = self.cfg.get("dry_run", True)
-        if dry_run:
+        if self.cfg.get("dry_run", True):
             log.info(f"[DRY RUN] {action} ${size} @ {price:.2f}")
             return {"status": "dry_run", "orderID": f"DRY_{token_id[:8]}", "action": action, "size": size}
 
         try:
-            order_args = MarketOrderArgs(token_id=token_id, amount=size, side=BUY, order_type=OrderType.GTC)
-            signed = self.client.create_market_order(order_args)
-            resp = self.client.post_order(signed, OrderType.GTC)
+            order_args = OrderArgs(
+                token_id=token_id,
+                price=price,
+                size=size,
+                side="BUY",
+            )
+            resp = self.client.create_and_post_order(order_args)
             log.info(f"Order ausgefuehrt: {resp}")
             return {"status": "executed", "action": action, "size": size, **resp}
         except Exception as e:
