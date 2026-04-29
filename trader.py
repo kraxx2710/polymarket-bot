@@ -36,7 +36,7 @@ class PolymarketTrader:
             CLOB_HOST,
             key=private_key,
             chain_id=CHAIN_ID,
-            signature_type=01,   # Für email/Magic Wallet - auf 0 ändern für MetaMask
+            signature_type=0,   # Für email/Magic Wallet - auf 0 ändern für MetaMask
             funder=funder,
         )
         self.client.set_api_creds(self.client.create_or_derive_api_creds())
