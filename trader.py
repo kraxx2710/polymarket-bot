@@ -44,9 +44,9 @@ class PolymarketTrader:
             return {"status": "dry_run", "orderID": f"DRY_{token_id[:8]}", "action": action, "size": size}
 
         try:
-            order_args = MarketOrderArgs(token_id=token_id, amount=size, side=BUY, order_type=OrderType.FOK)
+            order_args = MarketOrderArgs(token_id=token_id, amount=size, side=BUY, order_type=OrderType.GTC)
             signed = self.client.create_market_order(order_args)
-            resp = self.client.post_order(signed, OrderType.FOK)
+            resp = self.client.post_order(signed, OrderType.GTC)
             log.info(f"Order ausgefuehrt: {resp}")
             return {"status": "executed", "action": action, "size": size, **resp}
         except Exception as e:
