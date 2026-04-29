@@ -62,7 +62,11 @@ Min Konfidenz: {min_confidence:.0%} | Min Edge: 0.10"""
                 tools=[{"type": "web_search_20250305", "name": "web_search"}],
                 messages=[{"role": "user", "content": prompt}],
             )
-            text_content = "".join(b.text for b in response.content if b.type == "text").strip()
+            text_blocks = [b.text for b in response.content if hasattr(b, "text") and b.text]
+            text_content = " ".join(text_blocks).strip()
+            if not text_content:
+                log.warning("Claude: Keine Text-Antwort, nur Tool Calls")
+                return self._skip(market, "Keine Textantwort")
             if "```" in text_content:
                 for part in text_content.split("```"):
                     if "{" in part:
