@@ -58,7 +58,7 @@ Min Konfidenz: {min_confidence:.0%} | Min Edge: 0.10"""
             time.sleep(15)
             response = self.client.messages.create(
                 model=self.cfg["claude_model"],
-                max_tokens=700,
+                max_tokens=500,
                 tools=[{"type": "web_search_20250305", "name": "web_search"}],
                 messages=[{"role": "user", "content": prompt}],
             )
