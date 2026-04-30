@@ -1,8 +1,8 @@
 import os
-import time
 import logging
-import requests
 from py_clob_client.client import ClobClient
+from py_clob_client.clob_types import MarketOrderArgs, OrderType
+from py_clob_client.order_builder.constants import BUY
 
 log = logging.getLogger(__name__)
 CLOB_HOST = "https://clob.polymarket.com"
@@ -43,27 +43,14 @@ class PolymarketTrader:
             return {"status": "dry_run", "orderID": f"DRY_{token_id[:8]}"}
 
         try:
-            # Markt Order direkt ueber die neue API Methode
-            resp = self.client.post_order(
-                self.client.create_order({
-                    "token_id": token_id,
-                    "price": price,
-                    "size": size,
-                    "side": "BUY",
-                    "order_type": "GTC",
-                })
+            order_args = MarketOrderArgs(
+                token_id=token_id,
+                amount=size,
             )
+            signed = self.client.create_market_order(order_args)
+            resp = self.client.post_order(signed, OrderType.FOK)
             log.info(f"Order ausgefuehrt: {resp}")
             return {"status": "executed", "action": action, "size": size, "orderID": str(resp)}
         except Exception as e:
-            log.error(f"Order Fehler (create_order): {e}")
-            # Fallback: create_and_post_order
-            try:
-                from py_clob_client.clob_types import OrderArgs
-                order_args = OrderArgs(token_id=token_id, price=price, size=size, side="BUY")
-                resp2 = self.client.create_and_post_order(order_args)
-                log.info(f"Order (fallback) ausgefuehrt: {resp2}")
-                return {"status": "executed", "action": action, "size": size, "orderID": str(resp2)}
-            except Exception as e2:
-                log.error(f"Order Fehler (fallback): {e2}")
-                return {"status": "error", "error": str(e2)}
+            log.error(f"Order Fehler: {e}")
+            return {"status": "error", "error": str(e)}
