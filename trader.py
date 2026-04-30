@@ -20,7 +20,7 @@ class PolymarketTrader:
             raise ValueError("POLYMARKET_PRIVATE_KEY und POLYMARKET_FUNDER_ADDRESS fehlen")
         client = ClobClient(CLOB_HOST, key=pk, chain_id=CHAIN_ID,
                             signature_type=0, funder=funder)
-        client.set_api_creds(client.create_or_derive_api_creds())
+        client.set_api_creds(client.create_or_derive_api_key())
         log.info("CLOB Client initialisiert")
         return client
 
