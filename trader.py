@@ -1,7 +1,7 @@
 import os
 import logging
 from py_clob_client.client import ClobClient
-from py_clob_client.clob_types import OrderArgs, OrderType
+from py_clob_client.clob_types import OrderArgs
 
 log = logging.getLogger(__name__)
 CLOB_HOST = "https://clob.polymarket.com"
@@ -30,10 +30,10 @@ class PolymarketTrader:
 
         if action == "BUY_YES":
             token_id = decision["yes_token_id"]
-            price = decision["yes_price"]
+            price = float(decision["yes_price"])
         elif action == "BUY_NO":
             token_id = decision["no_token_id"]
-            price = decision["no_price"]
+            price = float(decision["no_price"])
         else:
             return {"status": "skipped"}
 
@@ -50,7 +50,7 @@ class PolymarketTrader:
             )
             resp = self.client.create_and_post_order(order_args)
             log.info(f"Order ausgefuehrt: {resp}")
-            return {"status": "executed", "action": action, "size": size, **resp}
+            return {"status": "executed", "action": action, "size": size, "orderID": str(resp)}
         except Exception as e:
             log.error(f"Order Fehler: {e}")
             return {"status": "error", "error": str(e)}
