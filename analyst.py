@@ -91,7 +91,7 @@ Antworte AUSSCHLIESSLICH mit diesem JSON-Format:
 
                 if action not in ("BUY_YES", "BUY_NO", "SKIP"):
                     action = "SKIP"
-                if action != "SKIP" and abs(edge) < 0.10:
+                if action != "SKIP" and abs(edge) < 0.07:
                     action = "SKIP"
 
                 log.info(f"Claude [{category.upper()}]: {action} Konfidenz={confidence:.0%} "
