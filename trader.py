@@ -1,8 +1,7 @@
 import os
 import logging
-from py_clob_client.client import ClobClient
-from py_clob_client.clob_types import MarketOrderArgs, OrderType
-from py_clob_client.order_builder.constants import BUY
+from py_clob_client_v2.client import ClobClient
+from py_clob_client_v2.clob_types import MarketOrderArgs, OrderType
 
 log = logging.getLogger(__name__)
 CLOB_HOST = "https://clob.polymarket.com"
@@ -31,24 +30,22 @@ class PolymarketTrader:
 
         if action == "BUY_YES":
             token_id = decision["yes_token_id"]
-            price = float(decision["yes_price"])
         elif action == "BUY_NO":
             token_id = decision["no_token_id"]
-            price = float(decision["no_price"])
         else:
             return {"status": "skipped"}
 
         if self.cfg.get("dry_run", True):
-            log.info(f"[DRY RUN] {action} ${size} @ {price:.2f}")
+            log.info(f"[DRY RUN] {action} ${size}")
             return {"status": "dry_run", "orderID": f"DRY_{token_id[:8]}"}
 
         try:
             order_args = MarketOrderArgs(
                 token_id=token_id,
                 amount=size,
+                side="BUY",
             )
-            signed = self.client.create_market_order(order_args)
-            resp = self.client.post_order(signed, OrderType.FOK)
+            resp = self.client.create_and_post_order(order_args)
             log.info(f"Order ausgefuehrt: {resp}")
             return {"status": "executed", "action": action, "size": size, "orderID": str(resp)}
         except Exception as e:
